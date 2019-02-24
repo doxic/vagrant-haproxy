@@ -1,0 +1,33 @@
+---
+- hosts: lb
+  gather_facts: true
+  become: true
+  vars:
+    haproxy_backend_servers:
+      - name: web1
+        address: 10.0.100.10:80
+      - name: web2
+        address: 10.0.100.20:80
+  tasks:
+    - name: install the latest versions of socat and netcat
+      yum:
+        name:
+          - socat
+          - nmap-ncat
+        state: latest
+
+    - name: HAProxy Exporter for Prometheus
+      docker_container:
+        name: haproxy-exporter
+        image: quay.io/prometheus/haproxy-exporter:latest
+        command: --haproxy.scrape-uri=unix:/var/lib/haproxy/stats
+        network_mode: host
+        pull: yes
+        state: started
+        restart_policy: unless-stopped
+        ports:
+          - "9101:9101"
+
+  roles:
+    - geerlingguy.haproxy
+    - geerlingguy.docker

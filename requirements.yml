@@ -1,0 +1,19 @@
+---
+# ansible-galaxy install -r requirements.yml
+# from galaxy
+- src: geerlingguy.haproxy
+- src: geerlingguy.firewall
+- src: geerlingguy.repo-epel
+- src: geerlingguy.nginx
+- src: geerlingguy.php
+- src: geerlingguy.docker
+
+- name: cloudalchemy.node-exporter
+- name: cloudalchemy.snmp-exporter
+- name: cloudalchemy.blackbox-exporter
+- name: cloudalchemy.prometheus
+- name: cloudalchemy.alertmanager
+- name: cloudalchemy.grafana
+
+# from GitHub
+# - src: https://github.com/bennojoy/nginx

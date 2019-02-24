@@ -1,0 +1,26 @@
+---
+- hosts: web
+  gather_facts: true
+  become: true
+  vars:
+
+    nginx_vhosts:
+      - listen: "80 default_server"
+        server_name: "example.com www.example.com"
+        root: "/usr/share/nginx/html/"
+        index: "index.html index.htm"
+        extra_parameters: |
+          location = /stub_status {
+              stub_status;
+          }
+
+  tasks:
+    - name: example copying file with owner and permissions
+      template:
+        src: index.html.j2
+        dest: /usr/share/nginx/html/index.html
+        mode: 0755
+
+  roles:
+    - geerlingguy.repo-epel
+    - geerlingguy.nginx

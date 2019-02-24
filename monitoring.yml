@@ -1,0 +1,43 @@
+- name: Deploy node_exporter
+  hosts: all
+  become: yes
+
+  vars:
+    firewall_allowed_tcp_ports:
+      - "22"
+      - "80"
+      - "9100"
+      - "9093"
+      - "3000"
+      - "8080"
+      - "9090"
+      - "9180"
+      - "9115"
+      - "8086"
+      - "9101"
+
+  roles:
+    - cloudalchemy.node-exporter
+    - geerlingguy.firewall
+
+
+  tags:
+    - node_exporter
+
+- name: Setup core monitoring software
+  hosts: prometheus
+  roles:
+    - cloudalchemy.blackbox-exporter
+    - cloudalchemy.snmp-exporter
+    - cloudalchemy.prometheus
+    - cloudalchemy.alertmanager
+  tags:
+    - prometheus
+
+- name: Deploy grafana
+  hosts: grafana
+  become: yes
+  roles:
+    - cloudalchemy.grafana
+  tags:
+    - grafana

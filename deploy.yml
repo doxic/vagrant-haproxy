@@ -1,0 +1,44 @@
+---
+- hosts: web
+  become: yes
+  serial: 1
+  gather_facts: true
+
+  pre_tasks:
+    # Place server in drain mode, providing a socket file.  Then check the server's
+    # status every minute to see if it changes to maintenance mode, continuing if it
+    # does in an hour and failing otherwise.
+    - name: Disable the backend server in HAProxy.
+      haproxy:
+        state: disabled
+        host: '{{ inventory_hostname }}'
+        socket: /var/lib/haproxy/stats
+        backend: habackend
+        wait: yes
+        drain: yes
+        wait_interval: 1
+        wait_retries: 60
+      delegate_to: "{{ item }}"
+      delegate_facts: false # Ensure this 2.0 feature is not used
+      run_once: true
+      with_items: "{{ groups.lb }}"
+
+  tasks:
+    - debug: msg="Deployment would be done here."
+
+  post_tasks:
+    - name: Wait for backend to come back up.
+      wait_for:
+        host: '{{ inventory_hostname }}'
+        port: 80
+        state: started
+        timeout: 60
+
+    - name: Enable the backend server in HAProxy.
+      haproxy:
+        state: enabled
+        host: '{{ inventory_hostname }}'
+        socket: /var/lib/haproxy/stats
+        backend: habackend
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups.lb }}"

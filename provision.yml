@@ -1,0 +1,10 @@
+---
+- hosts: all
+  gather_facts: false
+  pre_tasks:
+    - raw: 'test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)'
+    - setup: # gather_facts
+
+- import_playbook: monitoring.yml
+- import_playbook: webserver.yml
+- import_playbook: loadbalancer.yml
